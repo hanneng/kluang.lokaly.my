@@ -1,0 +1,303 @@
+@import 'tailwindcss';
+
+/*
+ * Dark mode is driven by a class on <html> (next-themes) rather than the media
+ * query alone, so the user's toggle wins over their OS setting.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* -------------------------------------------------------------------------- */
+/* Design tokens                                                               */
+/*                                                                             */
+/* Brand colours are indirected through --brand / --accent, which the root      */
+/* layout sets per town from the TownConfig. Everything else is network-wide.   */
+/* -------------------------------------------------------------------------- */
+
+@theme {
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-line: var(--line);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'Noto Sans', 'Liberation Sans', Arial, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  --font-display:
+    ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+  --radius-card: 1rem;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.04), 0 4px 16px oklch(0 0 0 / 0.06);
+  --shadow-lift: 0 2px 4px oklch(0 0 0 / 0.05), 0 12px 32px oklch(0 0 0 / 0.10);
+
+  --spacing-gutter: 1.25rem;
+}
+
+:root {
+  /* Overridden per town by the root layout. Values here are a neutral fallback
+     so the CSS is valid on its own (e.g. in Storybook or a bare error page). */
+  --brand: oklch(0.47 0.098 158);
+  --brand-fg: oklch(0.99 0.005 158);
+  --accent: oklch(0.73 0.152 62);
+  --accent-fg: oklch(0.22 0.03 62);
+
+  --surface: oklch(0.995 0.002 100);
+  --surface-2: oklch(1 0 0);
+  --surface-3: oklch(0.968 0.004 100);
+  --ink: oklch(0.21 0.012 260);
+  --ink-muted: oklch(0.47 0.013 260);
+  --ink-subtle: oklch(0.62 0.012 260);
+  --line: oklch(0.905 0.005 260);
+
+  color-scheme: light;
+}
+
+.dark {
+  --surface: oklch(0.176 0.011 260);
+  --surface-2: oklch(0.216 0.013 260);
+  --surface-3: oklch(0.258 0.014 260);
+  --ink: oklch(0.965 0.004 260);
+  --ink-muted: oklch(0.755 0.011 260);
+  --ink-subtle: oklch(0.615 0.012 260);
+  --line: oklch(0.315 0.014 260);
+
+  color-scheme: dark;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Base                                                                        */
+/* -------------------------------------------------------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  /* Respect users who have asked the OS to reduce motion. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible, consistent focus ring for keyboard users only. */
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--brand);
+    color: var(--brand-fg);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Utilities                                                                   */
+/* -------------------------------------------------------------------------- */
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+  max-width: 80rem;
+}
+
+@utility container-prose {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+  max-width: 46rem;
+}
+
+/** Clamp text to N lines. */
+@utility line-clamp-* {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: --value(integer);
+  overflow: hidden;
+}
+
+/** Horizontal snap rail used by every "featured" carousel. */
+@utility snap-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(15rem, 18rem);
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 0.5rem;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  & > * {
+    scroll-snap-align: start;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Long-form article typography                                                */
+/*                                                                             */
+/* Hand-rolled rather than @tailwindcss/typography: this is the single most     */
+/* important surface on the site and it needs to be tuned, not inherited.       */
+/* -------------------------------------------------------------------------- */
+
+.prose {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose h2 {
+  font-size: 1.6rem;
+  line-height: 1.25;
+  font-weight: 700;
+  margin-top: 2.25em;
+  margin-bottom: 0.6em;
+  scroll-margin-top: 6rem;
+}
+
+.prose h3 {
+  font-size: 1.22rem;
+  line-height: 1.35;
+  font-weight: 650;
+  margin-top: 1.9em;
+  margin-bottom: 0.5em;
+  scroll-margin-top: 6rem;
+}
+
+.prose h4 {
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin-top: 1.6em;
+}
+
+.prose a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  font-weight: 500;
+}
+
+.prose a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.prose strong {
+  font-weight: 650;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li + li {
+  margin-top: 0.4em;
+}
+
+.prose li::marker {
+  color: var(--ink-subtle);
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 0.25em 0 0.25em 1.1em;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin-block: 2.5em;
+}
+
+.prose code {
+  background: var(--surface-3);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.prose img {
+  border-radius: var(--radius-card);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid var(--line);
+  padding: 0.6em 0.75em;
+  text-align: left;
+}
+
+.prose th {
+  background: var(--surface-3);
+  font-weight: 650;
+}

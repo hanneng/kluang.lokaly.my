@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+build/
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+.wrangler/
+.DS_Store
+Thumbs.db
+/supabase/.temp/
+/supabase/seed.generated.sql
+.claude/settings.local.json

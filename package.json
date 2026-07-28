@@ -1,0 +1,44 @@
+{
+  "name": "lokaly-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-town tourism & community portal platform powering the Lokaly.my network.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "seed:sql": "tsx scripts/generate-seed-sql.ts",
+    "town:new": "tsx scripts/new-town.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.4",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.454.0",
+    "maplibre-gl": "^4.7.1",
+    "next": "15.5.4",
+    "next-auth": "5.0.0-beta.25",
+    "next-themes": "^0.4.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/node": "^22.9.0",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "eslint": "^9.14.0",
+    "eslint-config-next": "15.5.4",
+    "tailwindcss": "^4.1.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}
