@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { getTown } from '@/lib/town/context';
 import { getSupabaseAdmin, isSupabaseConfigured } from '@/lib/supabase/server';
+import { getPool, isPostgresConfigured } from '@/lib/db/pool';
 
 export interface LeadState {
   status: 'idle' | 'success' | 'error';
@@ -52,6 +53,35 @@ export async function submitLead(_previous: LeadState, formData: FormData): Prom
 
   const town = await getTown();
   const kind = formData.get('kind') === 'advertise' ? 'advertise' : 'contact';
+
+  if (process.env.DATA_SOURCE === 'postgres' && isPostgresConfigured()) {
+    try {
+      await getPool().query(
+        `insert into leads (town_slug, kind, name, email, phone, business_name, package_id, message)
+         values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          town.slug,
+          kind,
+          parsed.data.name,
+          parsed.data.email,
+          parsed.data.phone || null,
+          parsed.data.business || null,
+          parsed.data.packageId ?? null,
+          parsed.data.message,
+        ],
+      );
+    } catch (err) {
+      console.error('[lead] insert failed', err);
+      return {
+        status: 'error',
+        message: 'Something went wrong on our side. Please email us directly instead.',
+      };
+    }
+    return {
+      status: 'success',
+      message: 'Thanks — we have your enquiry and will reply within two working days.',
+    };
+  }
 
   if (!isSupabaseConfigured()) {
     console.info(`[lead:${kind}] ${town.slug}`, { ...parsed.data, company: undefined });

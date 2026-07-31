@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { getTown } from '@/lib/town/context';
 import { getSupabaseAdmin, isSupabaseConfigured } from '@/lib/supabase/server';
+import { getPool, isPostgresConfigured } from '@/lib/db/pool';
 
 export interface NewsletterState {
   status: 'idle' | 'success' | 'error';
@@ -34,6 +35,21 @@ export async function subscribeToNewsletter(
   }
 
   const town = await getTown();
+
+  if (process.env.DATA_SOURCE === 'postgres' && isPostgresConfigured()) {
+    try {
+      await getPool().query(
+        `insert into newsletter_subscribers (town_slug, email, source)
+         values ($1, $2, 'website')
+         on conflict (town_slug, email) do nothing`,
+        [town.slug, parsed.data.email],
+      );
+    } catch (err) {
+      console.error('[newsletter] subscribe failed', err);
+      return { status: 'error', message: 'Something went wrong on our side. Please try again shortly.' };
+    }
+    return { status: 'success', message: 'Thanks — you are on the list.' };
+  }
 
   if (!isSupabaseConfigured()) {
     // Development: no store configured. Say so honestly rather than pretending.

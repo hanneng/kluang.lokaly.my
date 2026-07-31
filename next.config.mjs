@@ -1,4 +1,16 @@
-import type { NextConfig } from 'next';
+// @ts-check
+
+/**
+ * Plain JS, deliberately not next.config.ts.
+ *
+ * Next.js loads this file at server boot, not just at build time, and doing
+ * so for a `.ts` config requires `typescript` present at runtime. Since
+ * production installs run `npm ci --omit=dev` (typescript is a devDependency,
+ * and installing it should never happen automatically on a live server),
+ * this file has to be plain JS so no dev toolchain is needed to boot.
+ *
+ * @type {() => Promise<import('next').NextConfig>}
+ */
 
 /**
  * Remote image hosts.
@@ -9,9 +21,10 @@ import type { NextConfig } from 'next';
 const remoteHostnames = [
   process.env.NEXT_PUBLIC_R2_PUBLIC_HOST, // e.g. cdn.lokaly.my
   'images.unsplash.com', // placeholder imagery for seed content only
-].filter((host): host is string => Boolean(host));
+].filter((host) => Boolean(host));
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
@@ -23,9 +36,19 @@ const nextConfig: NextConfig = {
     imageSizes: [64, 96, 128, 200, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: remoteHostnames.map((hostname) => ({
-      protocol: 'https' as const,
+      protocol: 'https',
       hostname,
     })),
+    // The bundled seed imagery (src/data/seed, public/images/placeholders) is
+    // SVG, and next/image refuses to optimize SVGs by default — they can embed
+    // <script>, which is a real risk for user-uploaded images. Ours are all
+    // generated locally by scripts/generate-placeholders.mjs, not uploads, so
+    // the risk doesn't apply; the CSP below is defense in depth regardless.
+    // Once Stage C replaces these with real photography (JPG/WebP), this
+    // block stops mattering for that imagery but is harmless to leave.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   experimental: {
