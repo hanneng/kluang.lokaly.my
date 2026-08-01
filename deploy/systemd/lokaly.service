@@ -1,0 +1,32 @@
+[Unit]
+Description=Lokaly platform (Kluang Guide) - Next.js server
+After=network.target
+
+[Service]
+Type=simple
+User=lokaly
+Group=lokaly
+WorkingDirectory=/opt/lokaly/app/current
+EnvironmentFile=/opt/lokaly/app/.env.production
+# Bounded heap so a leak can't take down the whole 1GB instance; Next itself
+# is invoked via its own CLI rather than `npm start` to avoid an extra
+# npm-wrapper process sitting in the supervision tree.
+Environment=NODE_OPTIONS=--max-old-space-size=384
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
+Restart=on-failure
+RestartSec=5
+# Hygiene: no capability to touch anything outside its own tree.
+# (ProtectSystem=strict was tried but fights the WorkingDirectory symlink
+# swap used for zero-downtime releases — systemd resolves ReadWritePaths
+# against the symlink target, and each new release changes that target,
+# so the namespace setup fails. NoNewPrivileges + PrivateTmp alone still
+# meaningfully reduces blast radius without that interaction.)
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lokaly
+
+[Install]
+WantedBy=multi-user.target
