@@ -57,17 +57,17 @@ export const home: TownConfig = {
   },
 
   theme: {
-    // Rich, vibrant blue with bright teal accents for strong hero contrast
-    primary: 'oklch(0.45 0.160 245)',         // Deep saturated blue for hero
+    // Very dark, saturated blue for high hero contrast with white text
+    primary: 'oklch(0.32 0.170 245)',         // Very dark saturated blue (high contrast)
     primaryForeground: 'oklch(0.99 0.005 245)',
-    accent: 'oklch(0.60 0.180 195)',         // Bright cyan for buttons
-    accentForeground: 'oklch(0.15 0.01 195)',
+    accent: 'oklch(0.65 0.190 190)',         // Bright cyan for buttons
+    accentForeground: 'oklch(0.15 0.01 190)',
     dark: {
-      primary: 'oklch(0.70 0.170 245)',      // Vibrant blue in dark mode
+      primary: 'oklch(0.65 0.175 245)',      // Vibrant blue in dark mode
       primaryForeground: 'oklch(0.15 0.02 245)',
-      accent: 'oklch(0.72 0.175 190)',       // Bright teal in dark mode
+      accent: 'oklch(0.75 0.185 185)',       // Bright teal in dark mode
     },
-    browserTheme: '#1a5f99',
+    browserTheme: '#0f4c7f',
   },
 
   contact: {
