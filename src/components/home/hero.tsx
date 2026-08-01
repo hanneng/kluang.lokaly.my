@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { allDirectories } from '@/config/directories';
+import { resolveMediaUrl } from '@/lib/media';
 import { t } from '@/lib/template';
 import { Icon } from '@/components/ui/icon';
 import { SearchBox } from '@/components/search/search-box';
@@ -22,7 +23,7 @@ export function Hero({ town }: { town: TownConfig }) {
     <section className="relative isolate overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <Image
-          src={town.hero.src}
+          src={resolveMediaUrl(town.hero.src)}
           alt={town.hero.alt}
           fill
           priority

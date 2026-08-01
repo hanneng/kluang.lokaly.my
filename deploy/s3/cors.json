@@ -1,0 +1,10 @@
+[
+  {
+    "AllowedOrigins": [
+      "https://kluang.lokaly.my"
+    ],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["*"],
+    "MaxAgeSeconds": 3000
+  }
+]

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTown, getTownOrigin } from '@/lib/town/context';
+import { resolveMediaUrl } from '@/lib/media';
 import { t } from '@/lib/template';
 import { truncate } from '@/lib/utils';
 import type { MediaAsset } from '@/types/content';
@@ -34,7 +35,11 @@ export async function buildMetadata(input: PageMetaInput): Promise<Metadata> {
   const description = truncate(t(input.description, town), 300);
   const url = `${origin}${input.path}`;
   const image = input.image ?? town.seo.ogImage;
-  const imageUrl = image.src.startsWith('http') ? image.src : `${origin}${image.src}`;
+  // Content images arrive already resolved from the repository; this also
+  // resolves a bare storage key if a town config ever uses one. A local
+  // `/images/...` path stays relative and gets the origin prepended below.
+  const resolvedSrc = resolveMediaUrl(image.src);
+  const imageUrl = /^https?:/i.test(resolvedSrc) ? resolvedSrc : `${origin}${resolvedSrc}`;
 
   return {
     title,
@@ -82,9 +87,8 @@ export async function buildMetadata(input: PageMetaInput): Promise<Metadata> {
 export async function buildRootMetadata(): Promise<Metadata> {
   const town = await getTown();
   const origin = await getTownOrigin();
-  const ogImage = town.seo.ogImage.src.startsWith('http')
-    ? town.seo.ogImage.src
-    : `${origin}${town.seo.ogImage.src}`;
+  const ogSrc = resolveMediaUrl(town.seo.ogImage.src);
+  const ogImage = /^https?:/i.test(ogSrc) ? ogSrc : `${origin}${ogSrc}`;
 
   return {
     metadataBase: new URL(origin),

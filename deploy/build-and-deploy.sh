@@ -20,6 +20,14 @@ KEY="${2:?usage: build-and-deploy.sh <ssh-target> <path-to-key>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# NEXT_PUBLIC_* vars are inlined at build time, so they must be set here (the
+# build runs on the workstation, not the server). deploy/build.env holds the
+# non-secret ones; sourcing it keeps deploys reproducible instead of relying on
+# whatever happens to be in the shell.
+if [ -f deploy/build.env ]; then
+  set -a; . deploy/build.env; set +a
+fi
+
 echo "== build (local) =="
 npm run build
 

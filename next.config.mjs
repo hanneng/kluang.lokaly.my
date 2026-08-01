@@ -13,13 +13,27 @@
  */
 
 /**
- * Remote image hosts.
+ * Remote image hosts allowed through the image optimizer.
  *
- * R2 buckets are exposed through a per-network CDN hostname so that a new town
- * never requires a config change here — it only needs a folder inside the bucket.
+ * The media host is derived from NEXT_PUBLIC_MEDIA_BASE_URL, so whatever
+ * actually serves the images — a public S3 bucket today
+ * (kluang-lokaly-my.s3.ap-southeast-5.amazonaws.com), a CloudFront/cdn.lokaly.my
+ * distribution tomorrow — is auto-allowed with no code change. Storing bare
+ * object keys and resolving them at read time (see src/lib/media.ts) is what
+ * makes that swap a one-variable change.
  */
+function hostOf(url) {
+  if (!url) return undefined;
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return undefined; // a bare hostname rather than a full URL — used as-is below
+  }
+}
+
 const remoteHostnames = [
-  process.env.NEXT_PUBLIC_R2_PUBLIC_HOST, // e.g. cdn.lokaly.my
+  hostOf(process.env.NEXT_PUBLIC_MEDIA_BASE_URL) ?? process.env.NEXT_PUBLIC_MEDIA_BASE_URL,
+  process.env.NEXT_PUBLIC_R2_PUBLIC_HOST, // legacy: e.g. cdn.lokaly.my
   'images.unsplash.com', // placeholder imagery for seed content only
 ].filter((host) => Boolean(host));
 

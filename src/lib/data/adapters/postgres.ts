@@ -16,11 +16,13 @@
 import { DIRECTORY_TYPES } from '@/config/directories';
 import { getPool } from '@/lib/db/pool';
 import { articleHref, eventHref, listingHref } from '@/lib/routes';
+import { resolveMediaAsset, resolveMediaUrl, resolveOptionalMediaAsset } from '@/lib/media';
 import type {
   Article,
   Category,
   DirectorySlug,
   Listing,
+  MediaAsset,
   TownEvent,
 } from '@/types/content';
 import type {
@@ -88,6 +90,17 @@ class Where {
 
 const emptyMedia = { src: '', alt: '' };
 
+/** Resolve every MediaAsset in a gallery array (bare key -> display URL). */
+const resolveGallery = (gallery: MediaAsset[] | undefined): MediaAsset[] =>
+  (gallery ?? []).map(resolveMediaAsset);
+
+/** Resolve the ogImage inside a SEO blob, if present. */
+function resolveSeo(seo: Row | undefined): Row {
+  const value = seo ?? {};
+  if (!value.ogImage) return value;
+  return { ...value, ogImage: resolveMediaAsset(value.ogImage) };
+}
+
 function toListing(row: Row): Listing {
   return {
     id: row.id,
@@ -98,8 +111,8 @@ function toListing(row: Row): Listing {
     title: row.title,
     summary: row.summary ?? '',
     body: row.body ?? '',
-    featuredImage: row.featured_image ?? emptyMedia,
-    gallery: row.gallery ?? [],
+    featuredImage: row.featured_image ? resolveMediaAsset(row.featured_image) : emptyMedia,
+    gallery: resolveGallery(row.gallery),
     address: row.address ?? '',
     area: row.area ?? undefined,
     postcode: row.postcode ?? undefined,
@@ -127,7 +140,7 @@ function toListing(row: Row): Listing {
     weight: row.weight ?? 0,
     status: row.status,
     verified: row.verified ?? false,
-    seo: row.seo ?? {},
+    seo: resolveSeo(row.seo),
     publishedAt: row.published_at instanceof Date ? row.published_at.toISOString() : row.published_at,
     updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
   };
@@ -142,16 +155,20 @@ function toArticle(row: Row): Article {
     title: row.title,
     summary: row.summary ?? '',
     body: row.body ?? '',
-    featuredImage: row.featured_image ?? emptyMedia,
-    gallery: row.gallery ?? [],
-    author: row.author ?? { name: 'Editorial team' },
-    sponsor: row.sponsor ?? undefined,
+    featuredImage: row.featured_image ? resolveMediaAsset(row.featured_image) : emptyMedia,
+    gallery: resolveGallery(row.gallery),
+    author: row.author
+      ? { ...row.author, avatar: resolveOptionalMediaAsset(row.author.avatar) }
+      : { name: 'Editorial team' },
+    sponsor: row.sponsor
+      ? { ...row.sponsor, logo: resolveOptionalMediaAsset(row.sponsor.logo) }
+      : undefined,
     tags: row.tags ?? [],
     faqs: row.faqs ?? [],
     relatedListingIds: row.related_listing_ids ?? [],
     readingMinutes: row.reading_minutes ?? 3,
     status: row.status,
-    seo: row.seo ?? {},
+    seo: resolveSeo(row.seo),
     publishedAt: row.published_at instanceof Date ? row.published_at.toISOString() : row.published_at,
     updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
   };
@@ -165,8 +182,8 @@ function toEvent(row: Row): TownEvent {
     title: row.title,
     summary: row.summary ?? '',
     body: row.body ?? '',
-    featuredImage: row.featured_image ?? emptyMedia,
-    gallery: row.gallery ?? [],
+    featuredImage: row.featured_image ? resolveMediaAsset(row.featured_image) : emptyMedia,
+    gallery: resolveGallery(row.gallery),
     startsAt: row.starts_at instanceof Date ? row.starts_at.toISOString() : row.starts_at,
     endsAt: row.ends_at ? (row.ends_at instanceof Date ? row.ends_at.toISOString() : row.ends_at) : undefined,
     allDay: row.all_day ?? false,
@@ -183,7 +200,7 @@ function toEvent(row: Row): TownEvent {
     tags: row.tags ?? [],
     tier: row.tier ?? 'free',
     status: row.status,
-    seo: row.seo ?? {},
+    seo: resolveSeo(row.seo),
     updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
   };
 }
@@ -580,7 +597,7 @@ export function createPostgresRepository(): ContentRepository {
           title: row.title,
           summary: row.summary ?? '',
           href,
-          image: row.featured_image?.src,
+          image: row.featured_image?.src ? resolveMediaUrl(row.featured_image.src) : undefined,
           badge,
           score: Number(row.rank ?? 0) + (row.tier ? TIER_WEIGHT[row.tier as keyof typeof TIER_WEIGHT] / 100 : 0),
         };
