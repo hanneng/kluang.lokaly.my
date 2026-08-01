@@ -12,11 +12,19 @@ import type { TownConfig } from '@/types/town';
 import { home } from './home';
 import { kluang } from './kluang';
 import { batuPahat } from './batu-pahat';
+import { muar } from './muar';
+import { pontian } from './pontian';
+import { segamat } from './segamat';
+import { taiping } from './taiping';
 
 export const TOWNS: Record<string, TownConfig> = {
   [home.slug]: home,
   [kluang.slug]: kluang,
   [batuPahat.slug]: batuPahat,
+  [muar.slug]: muar,
+  [pontian.slug]: pontian,
+  [segamat.slug]: segamat,
+  [taiping.slug]: taiping,
 };
 
 /**
