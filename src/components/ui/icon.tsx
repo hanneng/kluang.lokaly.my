@@ -1,12 +1,16 @@
 import {
   BedDouble,
+  Calendar,
   Coffee,
   Compass,
   Home,
+  Image,
   MapPin,
+  Newspaper,
   ShoppingBag,
   Store,
   UtensilsCrossed,
+  Zap,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -26,6 +30,10 @@ const ICONS: Record<string, LucideIcon> = {
   ShoppingBag,
   Store,
   Compass,
+  Calendar,
+  Image,
+  Newspaper,
+  Zap,
 };
 
 export function Icon({
