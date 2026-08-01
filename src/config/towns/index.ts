@@ -9,10 +9,12 @@
  */
 
 import type { TownConfig } from '@/types/town';
+import { home } from './home';
 import { kluang } from './kluang';
 import { batuPahat } from './batu-pahat';
 
 export const TOWNS: Record<string, TownConfig> = {
+  [home.slug]: home,
   [kluang.slug]: kluang,
   [batuPahat.slug]: batuPahat,
 };
