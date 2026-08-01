@@ -154,6 +154,91 @@ There is no lift and no restaurant, and the rooms facing the street get morning 
     tags: ['boutique', 'heritage', 'town centre', 'couples'],
     hiddenGem: true,
   }),
+
+  defineListing(TOWN, {
+    directory: 'hotels',
+    categorySlugs: ['business', 'mid-range'],
+    title: 'The Imperial Hotel',
+    summary:
+      'Well-located mid-range hotel with modern rooms, free parking and easy access to town attractions.',
+    body: `A solid mid-range option in the heart of Kluang with ideal positioning near the town centre and local attractions.
+
+Rooms are modern and comfortable with free Wi-Fi, air-conditioning, and private bathrooms. The hotel offers free private parking, which is convenient for exploring the town at your own pace. The location is excellent — within walking distance of kopitiams, shops, and near Sungai Yong Waterfalls and Kluang Street Art.
+
+Staff are friendly and helpful, making this a popular choice for both business travellers and leisure guests seeking good value and convenience.`,
+    featuredImage: img('tile-hotel', 'Modern hotel room with city view'),
+    address: '1, Jln Syed Abdul Hamid Sagaf, Kampung Masjid Lama, Kluang, Johor, 86000',
+    area: 'Kluang Town',
+    coordinates: { lat: 2.0335, lng: 103.3198 },
+    contact: {
+      ...PLACEHOLDER_CONTACT,
+      bookingUrl: 'https://www.trip.com/hotels/kluang-hotel-detail-695055/the-imperial-hotel/?Allianceid=9720355&SID=327089064&trip_sub1=Kluang&trip_sub3=D19028067',
+    },
+    priceRange: 2,
+    priceNote: 'From RM153 per night',
+    rating: { value: 4.4, count: 107, source: 'editorial' },
+    facilities: ['Free Wi-Fi', 'Free parking', 'Air-conditioning', 'Non-smoking floor', '24-hour reception', 'Family rooms', 'Prayer room'],
+    tags: ['business', 'mid-range', 'convenient', 'town centre', 'parking'],
+    tier: 'premium',
+    weight: 12,
+    faqs: [
+      {
+        question: 'Is The Imperial Hotel near Kluang town attractions?',
+        answer:
+          'Yes, The Imperial Hotel has an ideal location near Sungai Yong Waterfalls, Kluang Street Art, Laman Kreatif Kluang, and is within walking distance of many local eateries and shops.',
+      },
+    ],
+    seo: {
+      metaTitle: 'The Imperial Hotel Kluang — Rates, Facilities & Location',
+      metaDescription:
+        'Mid-range hotel in central Kluang with free parking and Wi-Fi. Near attractions and local food. Book direct with affiliate link for best rates.',
+    },
+  }),
+
+  defineListing(TOWN, {
+    directory: 'hotels',
+    categorySlugs: ['family', 'mid-range'],
+    title: 'Prime City Hotel Kluang',
+    summary:
+      'Family-friendly hotel with pool, restaurant and strategic location near the bus station.',
+    body: `A well-maintained hotel ideally positioned for travellers arriving by bus or coach. The location is excellent — just 2-3 minutes' walk from Kluang bus station and surrounded by eating places and amenities.
+
+Accommodation ranges from Standard rooms to Family Deluxe suites with flexible configurations. The highlight is the free outdoor swimming pool, perfect for families. An on-site restaurant provides dining convenience, and all rooms feature free Wi-Fi and air-conditioning.
+
+Spacious rooms, friendly staff and the strategic location near public transport make this a popular choice for families and group travellers.`,
+    featuredImage: img('tile-hotel', 'Hotel exterior with pool and modern architecture'),
+    address: '20, Jalan Bakawali, Kampung Masjid Lama, 86000 Kluang, Johor',
+    area: 'Kluang Town',
+    coordinates: { lat: 2.0253, lng: 103.3287 },
+    contact: {
+      ...PLACEHOLDER_CONTACT,
+      bookingUrl: 'https://www.trip.com/hotels/kluang-hotel-detail-1941994/prime-city-hotel-kluang/?Allianceid=9720355&SID=327089064&trip_sub1=Kluang&trip_sub3=D19028067',
+    },
+    priceRange: 2,
+    priceNote: 'From RM149 per night',
+    rating: { value: 3.8, count: 117, source: 'editorial' },
+    facilities: ['Free Wi-Fi', 'Free parking', 'Outdoor swimming pool', 'Restaurant', 'Air-conditioning', 'Family rooms', 'Non-smoking floor', 'Prayer room'],
+    tags: ['family', 'mid-range', 'pool', 'near bus station', 'convenient'],
+    tier: 'featured',
+    weight: 10,
+    faqs: [
+      {
+        question: 'Is Prime City Hotel near Kluang bus station?',
+        answer:
+          "Yes, Prime City Hotel is just 2-3 minutes' walking distance from Kluang bus station, making it very convenient for travellers arriving by coach or bus.",
+      },
+      {
+        question: 'Does Prime City Hotel have a pool?',
+        answer:
+          'Yes, the hotel features a free outdoor swimming pool, ideal for families and leisure guests to relax after sightseeing.',
+      },
+    ],
+    seo: {
+      metaTitle: 'Prime City Hotel Kluang — Family Rates, Pool & Facilities',
+      metaDescription:
+        'Family-friendly hotel in Kluang with free pool and outdoor facilities. Close to bus station. Book with our affiliate link for competitive rates.',
+    },
+  }),
 ];
 
 export const homestays: Listing[] = [
