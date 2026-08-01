@@ -3,6 +3,12 @@ import type { Metadata } from 'next';
 import { ArrowRight } from 'lucide-react';
 
 import { Hero } from '@/components/home/hero';
+import { NetworkHero } from '@/components/home/network-hero';
+import { FeaturedTowns } from '@/components/home/featured-towns';
+import { ValueProps } from '@/components/home/value-props';
+import { PartnerSection } from '@/components/home/partner-section';
+import { AdvertiseSection } from '@/components/home/advertise-section';
+import { BrowseStates } from '@/components/home/browse-states';
 import { ArticleCard } from '@/components/content/article-card';
 import { EventRail } from '@/components/content/event-card';
 import { ListingRail, ListingGrid } from '@/components/content/listing-card';
@@ -18,9 +24,6 @@ import { buildMetadata } from '@/lib/seo/metadata';
 import { t } from '@/lib/template';
 import { getTown } from '@/lib/town/context';
 
-// ISR window: 1 hour — mixes upcoming events and latest articles.
-// Must be a literal — Next statically analyses this export. Keep in sync
-// with the REVALIDATE reference table in src/config/site.ts.
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,11 +40,20 @@ export default async function HomePage() {
   const town = await getTown();
   const repo = getRepository();
 
-  /*
-   * One parallel fetch for the whole page. Each rail is a small, bounded query,
-   * and the repository caches per request, so this is a single round of work
-   * rather than a waterfall.
-   */
+  if (town.slug === 'home') {
+    return (
+      <>
+        <NetworkHero />
+        <FeaturedTowns />
+        <ValueProps />
+        <BrowseStates />
+        <PartnerSection />
+        <AdvertiseSection />
+        <NewsletterSignup townName="Lokaly" />
+      </>
+    );
+  }
+
   const [attractions, food, hotels, events, hiddenGems, articles, featured] = await Promise.all([
     repo.getListings({ townSlug: town.slug, directory: 'attractions', pageSize: 8 }),
     repo.getListings({ townSlug: town.slug, directory: ['food', 'cafes'], pageSize: 8 }),
@@ -67,7 +79,6 @@ export default async function HomePage() {
     <>
       <Hero town={town} />
 
-      {/* Directory tiles — the primary navigation affordance on mobile. */}
       <section className="border-b border-line bg-surface-2 py-8">
         <div className="container-page">
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
