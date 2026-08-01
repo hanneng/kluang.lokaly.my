@@ -95,14 +95,39 @@ Lightsail managed Postgres instance.
 
 ## Routine deploys
 
-From the repo root, after committing your changes:
+### Automatic (GitHub Actions)
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds on a
+GitHub runner (plenty of RAM — never the 1GB box), ships the artifact over SSH,
+and runs `release.sh`. Doc-only and `deploy/s3/**` changes are skipped
+(`paths-ignore`). You can also trigger it manually from the **Actions** tab
+(`workflow_dispatch`).
+
+**Required repository secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|--------|-------|
+| `DEPLOY_HOST` | the server's public IP |
+| `DEPLOY_SSH_KEY` | private key of the dedicated CI deploy keypair (full contents, incl. the BEGIN/END lines) |
+| `DEPLOY_KNOWN_HOSTS` | output of `ssh-keyscan -t ed25519,rsa <ip>` — pins the host key |
+
+The CI deploy key is a *dedicated* ed25519 keypair (not your personal key), its
+public half appended to `~ubuntu/.ssh/authorized_keys`. Revoke it by removing
+that line; rotate by generating a new pair and updating the secret. Note that it
+has the same `sudo` access as the `ubuntu` user, so anyone able to push to
+`main` can deploy — protect the branch accordingly.
+
+### Manual (fallback)
+
+From the repo root:
 
 ```bash
 deploy/build-and-deploy.sh ubuntu@<ip> key.pem
 ```
 
 Builds locally, ships the artifact, and runs `release.sh` (which restarts the
-service and prunes old releases, keeping the last 5).
+service and prunes old releases, keeping the last 5). Use this if Actions is
+unavailable or to deploy an un-pushed local change.
 
 ### Windows / PuTTY
 

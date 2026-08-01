@@ -1,0 +1,82 @@
+name: Deploy to Lightsail
+
+# Auto-deploy on push to main. The build runs here on a GitHub runner (which
+# has plenty of RAM) — never on the 1GB production box, where `next build`
+# would OOM. Only the built artifact is shipped, then the same deploy/release.sh
+# we use by hand unpacks it, installs prod deps, flips the release symlink,
+# restarts the service and prunes old releases.
+
+on:
+  push:
+    branches: [main]
+    # Skip deploys for changes that can't affect the running app.
+    paths-ignore:
+      - '**.md'
+      - 'deploy/s3/**'
+      - '.gitignore'
+      - '.gitattributes'
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+# Never let two deploys run at once; let an in-flight one finish rather than
+# cancelling it half-way through a release.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20' # match the server's Node 20 runtime
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: |
+          # NEXT_PUBLIC_* vars are inlined at build time — source the committed
+          # (non-secret) build env so the S3 media host is baked in.
+          set -a
+          [ -f deploy/build.env ] && . deploy/build.env
+          set +a
+          npm run build
+
+      - name: Package artifact
+        run: |
+          tar --exclude='.next/cache' -czf release.tar.gz \
+            .next public package.json package-lock.json next.config.mjs
+
+      - name: Deploy over SSH
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_HOST" || { echo "::error::DEPLOY_HOST secret is not set"; exit 1; }
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          SSH_OPTS="-i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o StrictHostKeyChecking=yes -o BatchMode=yes"
+          scp $SSH_OPTS release.tar.gz    "ubuntu@$SSH_HOST:/tmp/release.tar.gz"
+          scp $SSH_OPTS deploy/release.sh "ubuntu@$SSH_HOST:/tmp/release.sh"
+          ssh $SSH_OPTS "ubuntu@$SSH_HOST" 'bash /tmp/release.sh'
+
+      - name: Verify site is up
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          # Hit the origin directly (bypassing Cloudflare) so we test THIS box.
+          code=$(ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts \
+                     -o StrictHostKeyChecking=yes -o BatchMode=yes "ubuntu@$SSH_HOST" \
+                     "curl -s -k -o /dev/null -w '%{http_code}' -H 'Host: kluang.lokaly.my' https://127.0.0.1/ --resolve kluang.lokaly.my:443:127.0.0.1")
+          echo "origin homepage HTTP $code"
+          [ "$code" = "200" ] || { echo "::error::post-deploy healthcheck failed ($code)"; exit 1; }
