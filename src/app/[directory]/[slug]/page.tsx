@@ -139,6 +139,12 @@ export default async function ListingDetailPage({ params }: PageProps) {
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          {listing.featuredImage.credit ? (
+            // Visible attribution — required for CC BY-SA imagery, courteous for CC0.
+            <p className="absolute bottom-1.5 right-2.5 text-[0.65rem] leading-tight text-white/60">
+              {listing.featuredImage.credit}
+            </p>
+          ) : null}
         </div>
 
         <div className="container-page relative -mt-24 sm:-mt-28">
