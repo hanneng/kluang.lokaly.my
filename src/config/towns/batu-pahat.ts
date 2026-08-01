@@ -3,9 +3,8 @@ import type { TownConfig } from '@/types/town';
 /**
  * Batu Pahat, Johor.
  *
- * The original site runs on WordPress at batupahat.lokaly.my. This config is
- * the migration target — once content is ported, pointing the hostname at this
- * deployment is the only remaining step.
+ * Live site running on WordPress at batupahat.lokaly.my (managed separately).
+ * Listed here for network homepage to show as "Currently Available".
  */
 export const batuPahat: TownConfig = {
   slug: 'batu-pahat',
@@ -134,6 +133,6 @@ export const batuPahat: TownConfig = {
     aiAssistant: false,
   },
 
-  status: 'planned',
+  status: 'live',
   launchedAt: '2024-01-01',
 };
