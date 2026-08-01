@@ -3,8 +3,11 @@ import { ArrowRight } from 'lucide-react';
 
 export function NetworkHero() {
   return (
-    <section className="relative isolate overflow-hidden bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary)]/85 to-[var(--color-accent)]/40 py-20 sm:py-28 lg:py-40">
-      <div className="absolute inset-0 -z-10 opacity-20">
+    <section className="relative isolate overflow-hidden bg-[var(--color-primary)] py-20 sm:py-28 lg:py-40">
+      {/* Dark overlay for maximum contrast */}
+      <div className="absolute inset-0 -z-10 bg-black/25" />
+
+      <div className="absolute inset-0 -z-10 opacity-10">
         <svg className="h-full w-full" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
           <path
             d="M0,400 Q360,200 720,400 T1440,400 L1440,800 L0,800 Z"
